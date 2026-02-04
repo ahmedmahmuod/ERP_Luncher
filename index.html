@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" class="sl-theme-dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERP Launcher</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/src/renderer/styles/main.css" />
+  </head>
+  <body class="bg-dark-bg text-text-primary font-sans overflow-hidden">
+    <!-- Custom Title Bar -->
+    <div class="h-10 bg-dark-surface border-b border-dark-border flex items-center justify-between px-4 select-none" style="-webkit-app-region: drag">
+      <div class="flex items-center gap-3">
+        <sl-icon name="rocket-takeoff" class="text-accent-primary text-xl"></sl-icon>
+        <span class="text-sm font-bold tracking-tight">ERP LAUNCHER</span>
+      </div>
+      <div class="flex items-center gap-1" style="-webkit-app-region: no-drag">
+        <sl-button id="minimize-btn" variant="text" size="small" class="titlebar-btn">
+          <sl-icon name="dash-lg"></sl-icon>
+        </sl-button>
+        <sl-button id="maximize-btn" variant="text" size="small" class="titlebar-btn">
+          <sl-icon name="app"></sl-icon>
+        </sl-button>
+        <sl-button id="close-btn" variant="text" size="small" class="titlebar-btn hover-danger">
+          <sl-icon name="x-lg"></sl-icon>
+        </sl-button>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Layout -->
+    <div class="flex h-[calc(100vh-2.5rem)] overflow-hidden">
+      
+      <!-- Left Sidebar (Nav) -->
+      <aside class="w-16 lg:w-64 bg-dark-surface border-r border-dark-border flex flex-col transition-all duration-300">
+        <div class="p-4 flex-1 flex flex-col gap-4">
+          <div class="hidden lg:block">
+            <h2 class="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4 px-2">Navigation</h2>
+          </div>
+          
+          <nav class="space-y-1">
+            <button class="nav-item active w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors">
+              <sl-icon name="grid"></sl-icon>
+              <span class="hidden lg:block font-medium">Dashboard</span>
+            </button>
+            <button class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors">
+              <sl-icon name="gear"></sl-icon>
+              <span class="hidden lg:block font-medium">Settings</span>
+            </button>
+          </nav>
+
+          <div class="mt-8">
+            <div class="hidden lg:block">
+              <h2 class="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4 px-2">Categories</h2>
+            </div>
+            <div id="category-list" class="space-y-1">
+              <!-- Categories will be rendered here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-dark-border">
+          <sl-button id="add-solution-btn" variant="primary" class="w-full">
+            <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+            <span class="hidden lg:inline">Add Solution</span>
+          </sl-button>
+        </div>
+      </aside>
+
+      <!-- Center Content (Grid + Toolbar) -->
+      <main class="flex-1 flex flex-col bg-dark-bg min-w-0">
+        <!-- Top Toolbar -->
+        <header class="h-16 border-b border-dark-border flex items-center justify-between px-6 gap-4">
+          <div class="flex items-center gap-4 flex-1 max-w-xl">
+            <sl-input id="search-input" placeholder="Search services..." clearable class="w-full search-input">
+              <sl-icon name="search" slot="prefix"></sl-icon>
+            </sl-input>
+            
+            <sl-select id="category-filter" placeholder="All Categories" class="w-48 hidden md:block">
+              <sl-option value="all">All Categories</sl-option>
+            </sl-select>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <sl-button id="run-all-btn" variant="success" size="medium" outline>
+              <sl-icon slot="prefix" name="play-fill"></sl-icon>
+              Run All
+            </sl-button>
+            <sl-button id="stop-all-btn" variant="danger" size="medium" outline>
+              <sl-icon slot="prefix" name="stop-fill"></sl-icon>
+              Stop All
+            </sl-button>
+            <sl-divider vertical class="mx-2 h-6"></sl-divider>
+            <sl-tooltip content="Toggle Logs">
+              <sl-button id="toggle-logs-btn" variant="default" size="medium" outline circle>
+                <sl-icon name="terminal"></sl-icon>
+              </sl-button>
+            </sl-tooltip>
+          </div>
+        </header>
+
+        <!-- Solution Grid Area -->
+        <div class="flex-1 overflow-y-auto p-6 scrollbar-elegant">
+          <div id="solutions-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+            <!-- Cards will be injected by TS -->
+          </div>
+        </div>
+      </main>
+
+      <!-- Right Resizable Logs Panel -->
+      <aside id="logs-panel" class="w-[450px] border-l border-dark-border bg-dark-surface flex flex-col relative transition-[width] duration-75 hidden">
+        <!-- Resize Handle -->
+        <div id="resize-handle" class="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-accent-primary/50 transition-colors"></div>
+        
+        <div class="h-16 border-b border-dark-border flex items-center justify-between px-4 shrink-0">
+          <div class="flex items-center gap-2">
+            <sl-icon name="terminal-fill" class="text-accent-primary"></sl-icon>
+            <h3 class="font-bold text-sm tracking-tight text-text-secondary uppercase">Live Logs</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <sl-select id="log-filter" size="small" class="w-32">
+              <sl-option value="all">All Logs</sl-option>
+            </sl-select>
+            <sl-button id="clear-logs-btn" size="small" variant="text">
+              <sl-icon name="trash"></sl-icon>
+            </sl-button>
+            <sl-button id="close-logs-btn" size="small" variant="text">
+              <sl-icon name="x-lg"></sl-icon>
+            </sl-button>
+          </div>
+        </div>
+
+        <div id="logs-content" class="flex-1 overflow-y-auto p-4 font-mono text-[11px] leading-relaxed scrollbar-elegant bg-black/30">
+          <!-- Logs injected by TS -->
+        </div>
+
+        <div class="p-2 border-t border-dark-border flex justify-between items-center text-[10px] text-text-secondary bg-dark-surface">
+          <span id="log-stats">0 lines</span>
+          <sl-checkbox id="auto-scroll-check" size="small" checked>Auto-scroll</sl-checkbox>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Modals -->
+    <sl-dialog id="solution-modal" label="Solution Editor" class="dialog-overview">
+      <form id="solution-form" class="flex flex-col gap-4">
+        <sl-input label="Service Name" id="solution-name" required placeholder="e.g. ERP Shell"></sl-input>
+        
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium ml-1">Repository path</label>
+          <div class="flex gap-2">
+            <sl-input id="solution-path" required placeholder="C:\projects\..." class="flex-1"></sl-input>
+            <sl-button id="browse-path-btn">Browse</sl-button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <sl-input label="Command" id="solution-command" required placeholder="npm" value="npm"></sl-input>
+          <sl-input label="Arguments" id="solution-args" placeholder="run,dev"></sl-input>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <sl-input label="Port" id="solution-port" type="number" required value="4200"></sl-input>
+          <sl-input label="Category" id="solution-category" required value="Frontend"></sl-input>
+        </div>
+
+        <sl-input label="Health URL" id="solution-url" placeholder="http://localhost:4200"></sl-input>
+        
+        <sl-checkbox id="solution-autostart">Launch on startup</sl-checkbox>
+
+        <footer slot="footer">
+          <sl-button variant="text" id="cancel-modal-btn">Cancel</sl-button>
+          <sl-button variant="primary" type="submit">Save Solution</sl-button>
+        </footer>
+      </form>
+    </sl-dialog>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module" src="/src/renderer/renderer.ts"></script>
+  </body>
+</html>
