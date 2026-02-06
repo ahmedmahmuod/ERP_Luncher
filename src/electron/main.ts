@@ -24,6 +24,12 @@ const configPath = path.join(app.getPath('userData'), 'solutions.json');
 const solutionManager = new SolutionManager(configPath);
 
 const createWindow = () => {
+  // Get the correct icon path for both dev and production
+  const iconPath = path.join(app.getAppPath(), 'src', 'assets', 'logo.png');
+  const icon = nativeImage.createFromPath(iconPath);
+  console.log('Window icon path:', iconPath);
+  console.log('Icon loaded:', !icon.isEmpty());
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -33,6 +39,7 @@ const createWindow = () => {
     backgroundColor: '#F7F8FA',
     frame: false,
     show: false, // Don't show until ready
+    icon: icon.isEmpty() ? undefined : icon, // Set window icon if it exists
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -48,17 +55,26 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  // Show window when ready and close splash
-  mainWindow.once('ready-to-show', () => {
-    // Close splash screen
-    if (splashWindow) {
-      splashWindow.close();
-      splashWindow = null;
-    }
+  // Show window when ready and close splash after minimum 5 seconds
+  const splashStartTime = Date.now();
+  const MIN_SPLASH_TIME = 5000; // 5 seconds minimum
 
-    // Show main window
-    mainWindow?.show();
-    mainWindow?.focus();
+  mainWindow.once('ready-to-show', () => {
+    const elapsedTime = Date.now() - splashStartTime;
+    const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsedTime);
+
+    // Wait for remaining time to ensure splash shows for at least 5 seconds
+    setTimeout(() => {
+      // Close splash screen
+      if (splashWindow) {
+        splashWindow.close();
+        splashWindow = null;
+      }
+
+      // Show main window with fade-in effect
+      mainWindow?.show();
+      mainWindow?.focus();
+    }, remainingTime);
   });
 
   // Open DevTools in development
@@ -80,9 +96,16 @@ const createWindow = () => {
 };
 
 const createTray = () => {
-  // Create tray icon (you'll need to add an icon file)
-  const icon = nativeImage.createFromPath(path.join(__dirname, '../assets/tray-icon.png'));
-  tray = new Tray(icon.resize({ width: 16, height: 16 }));
+  // Create tray icon with ASSEMBLE logo
+  const iconPath = path.join(app.getAppPath(), 'src', 'assets', 'logo.png');
+  const icon = nativeImage.createFromPath(iconPath);
+
+  if (!icon.isEmpty()) {
+    tray = new Tray(icon.resize({ width: 16, height: 16 }));
+  } else {
+    console.error('Tray icon not found at:', iconPath);
+    return;
+  }
 
   const contextMenu = Menu.buildFromTemplate([
     {

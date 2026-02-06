@@ -1,0 +1,19 @@
+/* Override Shoelace dialog z-index to ensure it's always on top */
+sl-dialog::part(overlay) {
+  z-index: 9999 !important;
+}
+
+sl-dialog::part(panel) {
+  z-index: 10000 !important;
+}
+
+/* Ensure all Shoelace dropdowns and selects are on top */
+sl-dropdown::part(panel),
+sl-select::part(listbox) {
+  z-index: 10001 !important;
+}
+
+/* Ensure tooltips are above everything */
+sl-tooltip::part(body) {
+  z-index: 10002 !important;
+}
