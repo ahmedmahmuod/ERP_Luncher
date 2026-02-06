@@ -5,6 +5,7 @@ import { PortManager } from '../core/port-manager';
 import { HealthChecker } from '../core/health-check';
 import { SolutionManager } from '../core/solution-manager';
 import { Solution } from '../types/solution';
+import { SplashWindow } from './windows/splash';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -12,6 +13,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let splashWindow: SplashWindow | null = null;
 let tray: Tray | null = null;
 
 // Core managers
@@ -28,8 +30,9 @@ const createWindow = () => {
     height: 900,
     minWidth: 1000,
     minHeight: 600,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#F7F8FA',
     frame: false,
+    show: false, // Don't show until ready
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -44,6 +47,19 @@ const createWindow = () => {
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
+
+  // Show window when ready and close splash
+  mainWindow.once('ready-to-show', () => {
+    // Close splash screen
+    if (splashWindow) {
+      splashWindow.close();
+      splashWindow = null;
+    }
+
+    // Show main window
+    mainWindow?.show();
+    mainWindow?.focus();
+  });
 
   // Open DevTools in development
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -114,7 +130,14 @@ const createTray = () => {
 
 // Initialize app
 app.whenReady().then(async () => {
+  // Show splash screen first
+  splashWindow = new SplashWindow();
+  splashWindow.create();
+
+  // Initialize solution manager
   await solutionManager.initialize();
+
+  // Create main window (will show when ready-to-show fires)
   createWindow();
   createTray();
   setupIpcHandlers();
