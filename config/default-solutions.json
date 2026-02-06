@@ -1,0 +1,57 @@
+[
+  {
+    "id": "main-app",
+    "name": "Main APP",
+    "repoPath": "",
+    "command": "npm",
+    "args": ["run", "dev"],
+    "port": 4200,
+    "pathSuffix": "/",
+    "category": "Frontend",
+    "autoStart": false
+  },
+  {
+    "id": "hr",
+    "name": "HR",
+    "repoPath": "",
+    "command": "npm",
+    "args": ["run", "dev"],
+    "port": 44300,
+    "pathSuffix": "/",
+    "category": "Frontend",
+    "autoStart": false
+  },
+  {
+    "id": "warehouses",
+    "name": "Warehouses",
+    "repoPath": "",
+    "command": "npm",
+    "args": ["run", "dev"],
+    "port": 44301,
+    "pathSuffix": "/",
+    "category": "Frontend",
+    "autoStart": false
+  },
+  {
+    "id": "finance",
+    "name": "Finance",
+    "repoPath": "",
+    "command": "npm",
+    "args": ["run", "dev"],
+    "port": 44302,
+    "pathSuffix": "/",
+    "category": "Frontend",
+    "autoStart": false
+  },
+  {
+    "id": "project-management",
+    "name": "Project Management",
+    "repoPath": "",
+    "command": "npm",
+    "args": ["run", "dev"],
+    "port": 44303,
+    "pathSuffix": "/",
+    "category": "Frontend",
+    "autoStart": false
+  }
+]

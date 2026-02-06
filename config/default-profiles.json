@@ -1,0 +1,17 @@
+[
+  {
+    "id": "local",
+    "name": "Local",
+    "baseUrl": "http://localhost"
+  },
+  {
+    "id": "staging",
+    "name": "Staging",
+    "baseUrl": "https://assemblestage"
+  },
+  {
+    "id": "production",
+    "name": "Production",
+    "baseUrl": "https://mid-erp.com"
+  }
+]

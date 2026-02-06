@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="/src/renderer/styles/tokens.css" />
     <link rel="stylesheet" href="/src/renderer/styles/app.css" />
     <link rel="stylesheet" href="/src/renderer/styles/modal-fix.css" />
+    <link rel="stylesheet" href="/src/renderer/styles/toaster.css" />
   </head>
   <body>
     <!-- Custom Title Bar -->
@@ -53,11 +54,11 @@
           </div>
 
           <nav class="sidebar-nav">
-            <button class="nav-item active">
+            <button id="nav-dashboard" class="nav-item active">
               <sl-icon name="grid"></sl-icon>
               <span class="sidebar-text">Dashboard</span>
             </button>
-            <button class="nav-item">
+            <button id="nav-settings" class="nav-item">
               <sl-icon name="gear"></sl-icon>
               <span class="sidebar-text">Settings</span>
             </button>
@@ -80,7 +81,7 @@
       </aside>
 
       <!-- Center Content (Grid + Toolbar) -->
-      <main class="main-content">
+      <main id="dashboard-view" class="view-content">
         <!-- Top Toolbar -->
         <header class="topbar">
           <div class="topbar-search">
@@ -115,6 +116,94 @@
         <div class="content-area scrollbar-custom">
           <div id="solutions-grid" class="solutions-grid">
             <!-- Cards will be injected by TS -->
+          </div>
+        </div>
+      </main>
+
+      <!-- Settings View -->
+      <main id="settings-view" class="view-content hidden">
+        <header class="topbar">
+          <h2 style="font-size: var(--text-lg); font-weight: var(--font-bold)">System Settings</h2>
+        </header>
+
+        <div class="content-area scrollbar-custom" style="padding: var(--space-8)">
+          <div
+            style="
+              max-width: 800px;
+              margin: 0 auto;
+              display: flex;
+              flex-direction: column;
+              gap: var(--space-8);
+            "
+          >
+            <!-- Profiles Section -->
+            <section>
+              <h3
+                style="
+                  margin-bottom: var(--space-4);
+                  display: flex;
+                  align-items: center;
+                  gap: var(--space-2);
+                "
+              >
+                <sl-icon name="globe"></sl-icon>
+                Environment Profiles
+              </h3>
+              <sl-card>
+                <div style="display: flex; flex-direction: column; gap: var(--space-4)">
+                  <p style="color: var(--text-muted); font-size: var(--text-sm)">
+                    Select the active environment. This will update the base URL for all solutions.
+                  </p>
+                  <sl-select id="active-profile-select" label="Active Profile" value="local">
+                    <!-- Profiles will be injected here -->
+                  </sl-select>
+                  <div
+                    id="profile-info-display"
+                    style="
+                      padding: var(--space-3);
+                      background: var(--bg-secondary);
+                      border-radius: var(--rounded-md);
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    <!-- Active profile URL info -->
+                  </div>
+                </div>
+              </sl-card>
+            </section>
+
+            <!-- Maintenance Section -->
+            <section>
+              <h3
+                style="
+                  margin-bottom: var(--space-4);
+                  display: flex;
+                  align-items: center;
+                  gap: var(--space-2);
+                  color: var(--error);
+                "
+              >
+                <sl-icon name="exclamation-triangle"></sl-icon>
+                Danger Zone
+              </h3>
+              <sl-card>
+                <div style="display: flex; flex-direction: column; gap: var(--space-4)">
+                  <div>
+                    <h4 style="margin-bottom: var(--space-1)">Reset to Defaults</h4>
+                    <p style="color: var(--text-muted); font-size: var(--text-sm)">
+                      This will reload the default apps (HR, Warehouses, Finance, etc.) and
+                      profiles. Your existing custom solutions will be preserved unless there is an
+                      ID conflict.
+                    </p>
+                  </div>
+                  <sl-button id="reset-defaults-btn" variant="danger" outline>
+                    <sl-icon slot="prefix" name="arrow-counterclockwise"></sl-icon>
+                    Reset All to Defaults
+                  </sl-button>
+                </div>
+              </sl-card>
+            </section>
           </div>
         </div>
       </main>
@@ -201,9 +290,11 @@
         </div>
 
         <sl-input
-          label="Health URL"
-          id="solution-url"
-          placeholder="http://localhost:4200"
+          label="Path Suffix"
+          id="solution-pathsuffix"
+          placeholder="/"
+          value="/"
+          help-text="URL path after port (e.g., /dashboard)"
         ></sl-input>
 
         <sl-checkbox id="solution-autostart">Launch on startup</sl-checkbox>

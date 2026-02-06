@@ -1,0 +1,55 @@
+/* ========================================
+   TOAST NOTIFICATION SYSTEM
+   Bottom-right positioning with high z-index
+   ======================================== */
+
+#toast-container {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 400px;
+  pointer-events: none;
+}
+
+#toast-container sl-alert {
+  pointer-events: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Toast variants */
+#toast-container sl-alert[variant="success"] {
+  --sl-color-success-600: var(--success);
+}
+
+#toast-container sl-alert[variant="danger"] {
+  --sl-color-danger-600: var(--error);
+}
+
+#toast-container sl-alert[variant="warning"] {
+  --sl-color-warning-600: var(--warning);
+}
+
+#toast-container sl-alert[variant="primary"] {
+  --sl-color-primary-600: var(--primary);
+}
+
+/* Ensure toasts are above everything */
+#toast-container {
+  isolation: isolate;
+}

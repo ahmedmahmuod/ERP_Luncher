@@ -1,14 +1,32 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { app } from 'electron';
 import { Solution } from '../types/solution';
 import { randomUUID } from 'crypto';
+
+// Old solution format for migration
+interface LegacySolution {
+  id: string;
+  name: string;
+  repoPath: string;
+  command: string;
+  args: string[];
+  port: number;
+  url?: string; // Old format had url
+  category: string;
+  autoStart: boolean;
+  color?: string;
+}
 
 export class SolutionManager {
   private configPath: string;
   private solutions: Solution[] = [];
+  private defaultSolutionsPath: string;
+  private isFirstRun: boolean = false;
 
   constructor(configPath: string) {
     this.configPath = configPath;
+    this.defaultSolutionsPath = path.join(app.getAppPath(), 'config', 'default-solutions.json');
   }
 
   /**
@@ -18,6 +36,7 @@ export class SolutionManager {
     try {
       await this.ensureConfigFile();
       await this.load();
+      await this.migrateIfNeeded();
     } catch (error) {
       console.error('Failed to initialize SolutionManager:', error);
       this.solutions = [];
@@ -31,38 +50,35 @@ export class SolutionManager {
     try {
       await fs.access(this.configPath);
     } catch {
-      // File doesn't exist, create with default solutions
-      const defaultSolutions: Solution[] = [
-        {
-          id: randomUUID(),
-          name: 'Example Angular App',
-          repoPath: 'C:\\projects\\angular-app',
-          command: 'npm',
-          args: ['start'],
-          port: 4200,
-          url: 'http://localhost:4200',
-          category: 'Frontend',
-          autoStart: false,
-          color: '#dd0031',
-        },
-        {
-          id: randomUUID(),
-          name: 'Example React App',
-          repoPath: 'C:\\projects\\react-app',
-          command: 'npm',
-          args: ['start'],
-          port: 3000,
-          url: 'http://localhost:3000',
-          category: 'Frontend',
-          autoStart: false,
-          color: '#61dafb',
-        },
-      ];
+      // File doesn't exist - first run
+      this.isFirstRun = true;
+      await this.loadDefaultSolutions();
+    }
+  }
 
+  /**
+   * Load default solutions from config file
+   */
+  private async loadDefaultSolutions(): Promise<void> {
+    try {
+      const defaultSolutions = await this.readDefaultSolutions();
       const dir = path.dirname(this.configPath);
       await fs.mkdir(dir, { recursive: true });
       await fs.writeFile(this.configPath, JSON.stringify(defaultSolutions, null, 2), 'utf-8');
+      console.log('Loaded default solutions on first run');
+    } catch (error) {
+      console.error('Error loading default solutions:', error);
+      // Fallback to empty array
+      await fs.writeFile(this.configPath, JSON.stringify([], null, 2), 'utf-8');
     }
+  }
+
+  /**
+   * Read default solutions from file
+   */
+  private async readDefaultSolutions(): Promise<Solution[]> {
+    const content = await fs.readFile(this.defaultSolutionsPath, 'utf-8');
+    return JSON.parse(content);
   }
 
   /**
@@ -71,6 +87,67 @@ export class SolutionManager {
   private async load(): Promise<void> {
     const content = await fs.readFile(this.configPath, 'utf-8');
     this.solutions = JSON.parse(content) as Solution[];
+  }
+
+  /**
+   * Migrate old solution format to new format
+   * Old: { url: "http://localhost:4200/dashboard" }
+   * New: { port: 4200, pathSuffix: "/dashboard" }
+   */
+  private async migrateIfNeeded(): Promise<void> {
+    let needsMigration = false;
+
+    this.solutions = this.solutions.map((solution) => {
+      const legacy = solution as unknown as LegacySolution;
+
+      // Check if this solution has old url field
+      if (legacy.url && !solution.pathSuffix) {
+        needsMigration = true;
+        console.log(`Migrating solution: ${solution.name}`);
+
+        try {
+          const url = new URL(legacy.url);
+          const port = url.port ? parseInt(url.port) : url.protocol === 'https:' ? 443 : 80;
+          const pathSuffix = url.pathname || '/';
+
+          // Create migrated solution
+          const migrated: Solution = {
+            id: solution.id,
+            name: solution.name,
+            repoPath: solution.repoPath,
+            command: solution.command,
+            args: solution.args,
+            port: port,
+            pathSuffix: pathSuffix,
+            category: solution.category,
+            autoStart: solution.autoStart,
+            color: solution.color,
+          };
+
+          console.log(`  Migrated: port=${port}, pathSuffix=${pathSuffix}`);
+          return migrated;
+        } catch (error) {
+          console.error(`  Migration failed for ${solution.name}:`, error);
+          // Keep existing solution but ensure it has required fields
+          return {
+            ...solution,
+            pathSuffix: solution.pathSuffix || '/',
+          };
+        }
+      }
+
+      // Ensure pathSuffix exists
+      if (!solution.pathSuffix) {
+        solution.pathSuffix = '/';
+      }
+
+      return solution;
+    });
+
+    if (needsMigration) {
+      console.log('Saving migrated solutions...');
+      await this.save();
+    }
   }
 
   /**
@@ -101,6 +178,7 @@ export class SolutionManager {
     const newSolution: Solution = {
       ...solution,
       id: randomUUID(),
+      pathSuffix: solution.pathSuffix || '/',
     };
 
     this.validateSolution(newSolution);
@@ -161,6 +239,16 @@ export class SolutionManager {
   }
 
   /**
+   * Reset to default solutions
+   */
+  async resetToDefaults(): Promise<void> {
+    const defaultSolutions = await this.readDefaultSolutions();
+    this.solutions = defaultSolutions;
+    await this.save();
+    console.log('Reset to default solutions');
+  }
+
+  /**
    * Validate solution data
    */
   private validateSolution(solution: Solution): void {
@@ -179,5 +267,12 @@ export class SolutionManager {
     if (!solution.category || solution.category.trim() === '') {
       throw new Error('Category is required');
     }
+  }
+
+  /**
+   * Check if this is the first run
+   */
+  isFirstRunDetected(): boolean {
+    return this.isFirstRun;
   }
 }

@@ -1,19 +1,182 @@
-/* Override Shoelace dialog z-index to ensure it's always on top */
+/* ========================================
+   MODAL Z-INDEX FIXES
+   Ensure all dialogs appear on top of everything
+   ======================================== */
+
+/* Dialog overlay - appears behind the dialog panel */
 sl-dialog::part(overlay) {
-  z-index: 9999 !important;
+  z-index: 99999 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Dialog panel - the actual modal content */
+sl-dialog::part(panel) {
+  z-index: 100000 !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+}
+
+/* Dialog header */
+sl-dialog::part(header) {
+  position: sticky !important;
+  top: 0 !important;
+  background-color: var(--surface) !important;
+  z-index: 1 !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* Dialog footer */
+sl-dialog::part(footer) {
+  position: sticky !important;
+  bottom: 0 !important;
+  background-color: var(--surface) !important;
+  z-index: 1 !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+/* Ensure dropdowns inside dialogs appear on top */
+sl-dialog sl-dropdown::part(panel),
+sl-dialog sl-select::part(listbox) {
+  z-index: 100001 !important;
+}
+
+/* All Shoelace dropdowns and selects */
+sl-dropdown::part(panel),
+sl-select::part(listbox) {
+  z-index: 100001 !important;
+}
+
+/* Tooltips should be above everything */
+sl-tooltip::part(body) {
+  z-index: 100002 !important;
+}
+
+/* ========================================
+   RESPONSIVE DIALOG DESIGN
+   ======================================== */
+
+/* Desktop - Normal size */
+@media (min-width: 768px) {
+  sl-dialog::part(panel) {
+    width: 600px !important;
+    max-width: 90vw !important;
+  }
+}
+
+/* Tablet - Slightly smaller */
+@media (min-width: 481px) and (max-width: 767px) {
+  sl-dialog::part(panel) {
+    width: 90vw !important;
+    max-width: 500px !important;
+  }
+  
+  sl-dialog::part(body) {
+    padding: var(--space-4) !important;
+  }
+}
+
+/* Mobile - Full width with padding */
+@media (max-width: 480px) {
+  sl-dialog::part(panel) {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: var(--space-2) !important;
+  }
+  
+  sl-dialog::part(header),
+  sl-dialog::part(footer) {
+    padding: var(--space-3) !important;
+  }
+  
+  sl-dialog::part(body) {
+    padding: var(--space-3) !important;
+  }
+  
+  /* Stack form inputs vertically on mobile */
+  sl-dialog form > div[style*="grid"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ========================================
+   FORM RESPONSIVENESS INSIDE DIALOG
+   ======================================== */
+
+/* Ensure form elements are responsive */
+sl-dialog sl-input,
+sl-dialog sl-select,
+sl-dialog sl-textarea {
+  width: 100% !important;
+}
+
+/* Button groups in footer */
+sl-dialog::part(footer) {
+  display: flex !important;
+  gap: var(--space-2) !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
+}
+
+/* Mobile - Stack buttons vertically */
+@media (max-width: 480px) {
+  sl-dialog::part(footer) {
+    flex-direction: column-reverse !important;
+  }
+  
+  sl-dialog::part(footer) sl-button {
+    width: 100% !important;
+  }
+}
+
+/* ========================================
+   SCROLLBAR IN DIALOG
+   ======================================== */
+
+sl-dialog::part(body)::-webkit-scrollbar {
+  width: 8px;
+}
+
+sl-dialog::part(body)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+sl-dialog::part(body)::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius);
+}
+
+sl-dialog::part(body)::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ========================================
+   ANIMATION IMPROVEMENTS
+   ======================================== */
+
+sl-dialog::part(overlay) {
+  animation: fadeIn 0.2s ease-out !important;
 }
 
 sl-dialog::part(panel) {
-  z-index: 10000 !important;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Ensure all Shoelace dropdowns and selects are on top */
-sl-dropdown::part(panel),
-sl-select::part(listbox) {
-  z-index: 10001 !important;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-/* Ensure tooltips are above everything */
-sl-tooltip::part(body) {
-  z-index: 10002 !important;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

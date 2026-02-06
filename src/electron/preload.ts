@@ -43,6 +43,17 @@ const electronAPI: ElectronAPI = {
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close'),
   },
+
+  profiles: {
+    getAll: () => ipcRenderer.invoke('profiles:getAll'),
+    getActive: () => ipcRenderer.invoke('profiles:getActive'),
+    setActive: (profileId) => ipcRenderer.invoke('profiles:setActive', profileId),
+  },
+
+  config: {
+    resetToDefaults: () => ipcRenderer.invoke('config:resetToDefaults'),
+    validatePath: (path) => ipcRenderer.invoke('config:validatePath', path),
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

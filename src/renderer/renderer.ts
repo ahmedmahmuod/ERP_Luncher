@@ -21,12 +21,14 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path';
 import { Solution, ProcessState, LogEntry } from '../types/solution';
+import type { Profile } from '../types/profile';
 
 // Import components
 import { TopBar } from './components/topbar';
 import { Sidebar } from './components/sidebar';
 import { SolutionCard } from './components/solution-card';
 import { LogsPanel } from './components/logs-panel';
+import { toaster } from './components/Toaster';
 
 // Set Shoelace base path to CDN for icons
 setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/dist/');
@@ -47,12 +49,33 @@ let activeLogSolutionId: string | null = 'all';
 let logs: (LogEntry & { solutionId: string })[] = [];
 let searchQuery = '';
 let categoryFilter = 'all';
+let activeProfile: Profile | null = null;
+
+/**
+ * Compute resolved URL for a solution based on active profile
+ */
+function computeResolvedUrl(solution: Solution): string {
+  const baseUrl = solution.baseUrlOverride || activeProfile?.baseUrl || 'http://localhost';
+  const pathSuffix = solution.pathSuffix || '/';
+  return `${baseUrl}:${solution.port}${pathSuffix}`;
+}
 
 // UI Elements
 const solutionsGrid = document.getElementById('solutions-grid')!;
 const solutionModal = document.getElementById('solution-modal') as any;
 const solutionForm = document.getElementById('solution-form') as HTMLFormElement;
 const browsePathBtn = document.getElementById('browse-path-btn')!;
+
+// Views
+const dashboardView = document.getElementById('dashboard-view')!;
+const settingsView = document.getElementById('settings-view')!;
+const navDashboard = document.getElementById('nav-dashboard')!;
+const navSettings = document.getElementById('nav-settings')!;
+
+// Settings Elements
+const activeProfileSelect = document.getElementById('active-profile-select') as any;
+const resetDefaultsBtn = document.getElementById('reset-defaults-btn')!;
+const profileInfoDisplay = document.getElementById('profile-info-display')!;
 
 // Initialize Components
 let topBar: TopBar;
@@ -67,6 +90,9 @@ async function init() {
   // Initialize components FIRST before loading data
   initializeComponents();
   setupEventListeners();
+
+  // Load active profile
+  await loadActiveProfile();
 
   // Then load data which will call updateCategories()
   await loadSolutions();
@@ -121,6 +147,63 @@ function initializeComponents() {
   });
 }
 
+// Load active profile
+async function loadActiveProfile() {
+  try {
+    activeProfile = await window.electronAPI.profiles.getActive();
+    console.log('Active profile loaded:', activeProfile);
+
+    // Update settings UI if it exists
+    if (activeProfileSelect && activeProfile) {
+      activeProfileSelect.value = activeProfile.id;
+      updateProfileInfoDisplay();
+    }
+  } catch (error) {
+    console.error('Failed to load active profile:', error);
+    // Fallback to local
+    activeProfile = { id: 'local', name: 'Local', baseUrl: 'http://localhost' };
+  }
+}
+
+async function loadAllProfiles() {
+  try {
+    const profiles = await window.electronAPI.profiles.getAll();
+    activeProfileSelect.innerHTML = profiles
+      .map((p: Profile) => `<sl-option value="${p.id}">${p.name} (${p.baseUrl})</sl-option>`)
+      .join('');
+
+    if (activeProfile) {
+      activeProfileSelect.value = activeProfile.id;
+    }
+  } catch (error) {
+    console.error('Failed to load all profiles:', error);
+  }
+}
+
+function updateProfileInfoDisplay() {
+  if (profileInfoDisplay && activeProfile) {
+    profileInfoDisplay.innerHTML = `
+      <div><strong>Current Base URL:</strong> ${activeProfile.baseUrl}</div>
+      <div style="margin-top: 4px; opacity: 0.7">All app URLs will resolve relative to this address.</div>
+    `;
+  }
+}
+
+function switchView(view: 'dashboard' | 'settings') {
+  if (view === 'dashboard') {
+    dashboardView.classList.remove('hidden');
+    settingsView.classList.add('hidden');
+    navDashboard.classList.add('active');
+    navSettings.classList.remove('active');
+  } else {
+    dashboardView.classList.add('hidden');
+    settingsView.classList.remove('hidden');
+    navDashboard.classList.remove('active');
+    navSettings.classList.add('active');
+    void loadAllProfiles();
+  }
+}
+
 // IPC Listeners
 window.electronAPI.processes.onStateChange((id: string, state: ProcessState) => {
   processStates[id] = state;
@@ -151,6 +234,35 @@ function setupEventListeners() {
     .getElementById('close-btn')
     ?.addEventListener('click', () => window.electronAPI.window.close());
 
+  // Navigation
+  navDashboard.addEventListener('click', () => switchView('dashboard'));
+  navSettings.addEventListener('click', () => switchView('settings'));
+
+  // Settings
+  activeProfileSelect.addEventListener('sl-change', async () => {
+    const profileId = activeProfileSelect.value;
+    await window.electronAPI.profiles.setActive(profileId);
+    await loadActiveProfile();
+    showToast('Profile Changed', `Switched to ${activeProfile?.name} environment`, 'primary');
+    renderSolutions(); // Update all card URLs
+  });
+
+  resetDefaultsBtn.addEventListener('click', async () => {
+    if (
+      confirm('Are you sure you want to reset all configurations? This will restore default apps.')
+    ) {
+      try {
+        await window.electronAPI.config.resetToDefaults();
+        await loadActiveProfile();
+        await loadSolutions();
+        showToast('System Reset', 'Restored default solutions and profiles', 'success');
+        switchView('dashboard');
+      } catch (error: any) {
+        showToast('Reset Failed', error.message, 'danger');
+      }
+    }
+  });
+
   // Modal
   browsePathBtn.addEventListener('click', async () => {
     const path = await window.electronAPI.shell.selectFolder();
@@ -170,8 +282,8 @@ function setupEventListeners() {
         .map((a: string) => a.trim())
         .filter((a: string) => a),
       port: parseInt((document.getElementById('solution-port') as any).value),
+      pathSuffix: (document.getElementById('solution-pathsuffix') as any)?.value || '/',
       category: (document.getElementById('solution-category') as any).value,
-      url: (document.getElementById('solution-url') as any).value,
       autoStart: (document.getElementById('solution-autostart') as any).checked,
     };
 
@@ -235,7 +347,8 @@ function renderSolutions() {
   solutionsGrid.innerHTML = filtered
     .map((solution) => {
       const state = processStates[solution.id] || { status: 'stopped', logs: [] };
-      return SolutionCard.render(solution, state, {
+      const resolvedUrl = computeResolvedUrl(solution);
+      return SolutionCard.render(solution, state, resolvedUrl, {
         onStart: () => {},
         onStop: () => {},
         onOpen: () => {},
@@ -286,8 +399,8 @@ function editSolution(id: string) {
   (document.getElementById('solution-command') as any).value = sol.command;
   (document.getElementById('solution-args') as any).value = sol.args.join(',');
   (document.getElementById('solution-port') as any).value = sol.port;
+  (document.getElementById('solution-pathsuffix') as any).value = sol.pathSuffix || '/';
   (document.getElementById('solution-category') as any).value = sol.category;
-  (document.getElementById('solution-url') as any).value = sol.url;
   (document.getElementById('solution-autostart') as any).checked = sol.autoStart;
 
   solutionModal.show();

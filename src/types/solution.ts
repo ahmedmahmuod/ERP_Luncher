@@ -5,10 +5,20 @@ export interface Solution {
   command: string;
   args: string[];
   port: number;
-  url: string;
+  pathSuffix?: string; // Default "/"
   category: string;
   autoStart: boolean;
+  baseUrlOverride?: string; // Optional override for baseUrl
   color?: string;
+  // REMOVED: url - now computed dynamically as resolvedUrl
+}
+
+/**
+ * Solution with computed resolved URL
+ * Used in renderer for display purposes
+ */
+export interface SolutionWithUrl extends Solution {
+  resolvedUrl: string;
 }
 
 export interface ProcessState {
@@ -81,6 +91,19 @@ export interface ElectronAPI {
     minimize: () => void;
     maximize: () => void;
     close: () => void;
+  };
+
+  // Profile Management
+  profiles: {
+    getAll: () => Promise<import('./profile').Profile[]>;
+    getActive: () => Promise<import('./profile').Profile>;
+    setActive: (profileId: string) => Promise<void>;
+  };
+
+  // Configuration Management
+  config: {
+    resetToDefaults: () => Promise<void>;
+    validatePath: (path: string) => Promise<boolean>;
   };
 }
 

@@ -1,9 +1,11 @@
 import { app, BrowserWindow, ipcMain, shell, dialog, Tray, Menu, nativeImage } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs/promises';
 import { ProcessManager } from '../core/process-manager';
 import { PortManager } from '../core/port-manager';
 import { HealthChecker } from '../core/health-check';
 import { SolutionManager } from '../core/solution-manager';
+import { ProfileManager } from './managers/ProfileManager';
 import { Solution } from '../types/solution';
 import { SplashWindow } from './windows/splash';
 
@@ -22,6 +24,7 @@ const portManager = new PortManager();
 const healthChecker = new HealthChecker();
 const configPath = path.join(app.getPath('userData'), 'solutions.json');
 const solutionManager = new SolutionManager(configPath);
+const profileManager = new ProfileManager();
 
 const createWindow = () => {
   // Get the correct icon path for both dev and production
@@ -231,7 +234,14 @@ function setupIpcHandlers() {
 
     // Perform health check after a delay
     setTimeout(async () => {
-      const healthy = await healthChecker.waitForHealthy(solution.url, 30000);
+      // Compute resolved URL for health check
+      const resolvedUrl = profileManager.computeResolvedUrl(
+        solution.port,
+        solution.pathSuffix,
+        solution.baseUrlOverride
+      );
+
+      const healthy = await healthChecker.waitForHealthy(resolvedUrl, 30000);
       const state = processManager.getState(solutionId);
       if (state) {
         state.healthStatus = healthy ? 'healthy' : 'unhealthy';
@@ -317,6 +327,34 @@ function setupIpcHandlers() {
 
   ipcMain.on('window:close', () => {
     mainWindow?.close();
+  });
+
+  // Profile Management
+  ipcMain.handle('profiles:getAll', async () => {
+    return profileManager.getProfiles();
+  });
+
+  ipcMain.handle('profiles:getActive', async () => {
+    return profileManager.getActiveProfile();
+  });
+
+  ipcMain.handle('profiles:setActive', async (_event, profileId: string) => {
+    profileManager.setActiveProfile(profileId);
+  });
+
+  // Configuration Management
+  ipcMain.handle('config:resetToDefaults', async () => {
+    await solutionManager.resetToDefaults();
+    profileManager.resetToDefaults();
+  });
+
+  ipcMain.handle('config:validatePath', async (_event, pathToValidate: string) => {
+    try {
+      const stats = await fs.stat(pathToValidate);
+      return stats.isDirectory();
+    } catch {
+      return false;
+    }
   });
 
   // Forward process events to renderer

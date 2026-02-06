@@ -18,6 +18,7 @@ export class SolutionCard {
   static render(
     solution: Solution,
     state: ProcessState,
+    resolvedUrl: string,
     _callbacks: SolutionCardCallbacks
   ): string {
     const statusVariant = this.getStatusVariant(state.status);
@@ -108,7 +109,7 @@ export class SolutionCard {
               size="small" 
               outline 
               data-action="open" 
-              data-url="${solution.url}"
+              data-url="${resolvedUrl}"
             >
               <sl-icon name="box-arrow-up-right"></sl-icon>
             </sl-button>
