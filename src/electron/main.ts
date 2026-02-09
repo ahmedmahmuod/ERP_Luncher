@@ -9,11 +9,6 @@ import { ProfileManager } from './managers/ProfileManager';
 import { Solution } from '../types/solution';
 import { SplashWindow } from './windows/splash';
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
-
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: SplashWindow | null = null;
 let tray: Tray | null = null;

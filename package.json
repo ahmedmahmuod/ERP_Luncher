@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "electron-forge start",
     "build": "electron-forge make",
+    "make": "electron-forge make",
     "package": "electron-forge package",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts src/",
@@ -24,12 +25,10 @@
     "forge": "./forge.config.ts"
   },
   "dependencies": {
-    "@shoelace-style/shoelace": "^2.20.1",
-    "electron-squirrel-startup": "^1.0.0"
+    "@shoelace-style/shoelace": "^2.20.1"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.2.0",
-    "@electron-forge/maker-squirrel": "^7.2.0",
     "@electron-forge/maker-zip": "^7.2.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
     "@electron-forge/plugin-vite": "^7.2.0",
