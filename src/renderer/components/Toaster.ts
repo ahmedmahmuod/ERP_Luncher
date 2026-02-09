@@ -33,29 +33,33 @@ class Toaster {
   /**
    * Show a toast notification
    */
-  show(options: ToastOptions): void {
-    if (!this.container) return;
-
+  show(options: ToastOptions & { title?: string }): void {
     const toast = document.createElement('sl-alert') as SlAlert;
     toast.variant = options.variant || 'primary';
     toast.closable = true;
     toast.duration = options.duration || 3000;
 
-    // Create content with icon
+    // Create content with optional title and icon
     let content = '';
-    if (options.icon) {
-      content = `<sl-icon name="${options.icon}" slot="icon"></sl-icon>${options.message}`;
-    } else {
-      content = options.message;
+    const iconName =
+      options.icon ||
+      (options.variant === 'success'
+        ? 'check-circle'
+        : options.variant === 'danger'
+          ? 'exclamation-octagon'
+          : 'info-circle');
+
+    content = `<sl-icon name="${iconName}" slot="icon"></sl-icon>`;
+    if (options.title) {
+      content += `<strong>${options.title}</strong><br />`;
     }
+    content += options.message;
 
     toast.innerHTML = content;
 
-    // Add to container
-    this.container.appendChild(toast);
-    this.toasts.add(toast);
-
-    // Show the toast
+    // Use Shoelace's internal toast functionality
+    // This correctly handles the toast stack and positioning
+    document.body.appendChild(toast);
     void toast.toast();
 
     // Remove after hide

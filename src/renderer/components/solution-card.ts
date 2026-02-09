@@ -75,6 +75,20 @@ export class SolutionCard {
               ${state.healthStatus || 'N/A'}
             </sl-badge>
           </div>
+
+          ${
+            solution.baseUrlOverride
+              ? `
+          <div class="card-info-row" style="color: var(--primary); font-weight: 500;">
+            <span class="card-info-label">
+              <sl-icon name="globe"></sl-icon>
+              ENV
+            </span>
+            <span class="card-info-value">Override Active</span>
+          </div>
+          `
+              : ''
+          }
         </div>
 
         <div slot="footer" class="card-footer">

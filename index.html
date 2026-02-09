@@ -20,230 +20,232 @@
     <link rel="stylesheet" href="/src/renderer/styles/toaster.css" />
   </head>
   <body>
-    <!-- Custom Title Bar -->
-    <div class="titlebar">
-      <div class="titlebar-content">
-        <img
-          src="/src/assets/logo.png"
-          alt="Logo"
-          class="titlebar-logo"
-          style="width: 24px; height: 24px; object-fit: contain"
-        />
-        <span class="titlebar-title">ERP LAUNCHER</span>
-      </div>
-      <div class="titlebar-controls">
-        <sl-button id="minimize-btn" variant="text" size="small" class="titlebar-btn">
-          <sl-icon name="dash-lg"></sl-icon>
-        </sl-button>
-        <sl-button id="maximize-btn" variant="text" size="small" class="titlebar-btn">
-          <sl-icon name="app"></sl-icon>
-        </sl-button>
-        <sl-button id="close-btn" variant="text" size="small" class="titlebar-btn close-btn">
-          <sl-icon name="x-lg"></sl-icon>
-        </sl-button>
-      </div>
-    </div>
-
-    <!-- Main Dashboard Layout -->
-    <div class="main-layout">
-      <!-- Left Sidebar (Nav) -->
-      <aside class="sidebar">
-        <div class="sidebar-content scrollbar-custom">
-          <div>
-            <h2 class="sidebar-section-title">Navigation</h2>
-          </div>
-
-          <nav class="sidebar-nav">
-            <button id="nav-dashboard" class="nav-item active">
-              <sl-icon name="grid"></sl-icon>
-              <span class="sidebar-text">Dashboard</span>
-            </button>
-            <button id="nav-settings" class="nav-item">
-              <sl-icon name="gear"></sl-icon>
-              <span class="sidebar-text">Settings</span>
-            </button>
-          </nav>
-
-          <div style="margin-top: var(--space-8)">
-            <h2 class="sidebar-section-title">Categories</h2>
-            <div id="category-list" class="sidebar-nav">
-              <!-- Categories will be rendered here -->
-            </div>
-          </div>
+    <div class="app-container">
+      <!-- Custom Title Bar -->
+      <div class="titlebar">
+        <div class="titlebar-content">
+          <img
+            src="/src/assets/logo.png"
+            alt="Logo"
+            class="titlebar-logo"
+            style="width: 24px; height: 24px; object-fit: contain"
+          />
+          <span class="titlebar-title">ERP LAUNCHER</span>
         </div>
-
-        <div class="sidebar-footer">
-          <sl-button id="add-solution-btn" variant="primary" class="w-full" style="width: 100%">
-            <sl-icon slot="prefix" name="plus-lg"></sl-icon>
-            <span class="sidebar-text">Add Solution</span>
+        <div class="titlebar-controls">
+          <sl-button id="minimize-btn" variant="text" size="small" class="titlebar-btn">
+            <sl-icon name="dash-lg"></sl-icon>
+          </sl-button>
+          <sl-button id="maximize-btn" variant="text" size="small" class="titlebar-btn">
+            <sl-icon name="app"></sl-icon>
+          </sl-button>
+          <sl-button id="close-btn" variant="text" size="small" class="titlebar-btn close-btn">
+            <sl-icon name="x-lg"></sl-icon>
           </sl-button>
         </div>
-      </aside>
-
-      <!-- Center Content (Grid + Toolbar) -->
-      <main id="dashboard-view" class="view-content">
-        <!-- Top Toolbar -->
-        <header class="topbar">
-          <div class="topbar-search">
-            <sl-input id="search-input" placeholder="Search solutions..." clearable style="flex: 1">
-              <sl-icon name="search" slot="prefix"></sl-icon>
-            </sl-input>
-
-            <sl-select id="category-filter" placeholder="All Categories" style="width: 12rem">
-              <sl-option value="all">All Categories</sl-option>
-            </sl-select>
+      </div>
+  
+      <!-- Main Dashboard Layout -->
+      <div class="main-layout">
+        <!-- Left Sidebar (Nav) -->
+        <aside class="sidebar">
+          <div class="sidebar-content scrollbar-custom">
+            <div>
+              <h2 class="sidebar-section-title">Navigation</h2>
+            </div>
+  
+            <nav class="sidebar-nav">
+              <button id="nav-dashboard" class="nav-item active">
+                <sl-icon name="grid"></sl-icon>
+                <span class="sidebar-text">Dashboard</span>
+              </button>
+              <button id="nav-settings" class="nav-item">
+                <sl-icon name="gear"></sl-icon>
+                <span class="sidebar-text">Settings</span>
+              </button>
+            </nav>
+  
+            <div style="margin-top: var(--space-8)">
+              <h2 class="sidebar-section-title">Categories</h2>
+              <div id="category-list" class="sidebar-nav">
+                <!-- Categories will be rendered here -->
+              </div>
+            </div>
           </div>
-
-          <div class="topbar-actions">
-            <sl-button id="run-all-btn" variant="success" size="medium" outline>
-              <sl-icon slot="prefix" name="play-fill"></sl-icon>
-              Run All
+  
+          <div class="sidebar-footer">
+            <sl-button id="add-solution-btn" variant="primary" class="w-full" style="width: 100%">
+              <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+              <span class="sidebar-text">Add Solution</span>
             </sl-button>
-            <sl-button id="stop-all-btn" variant="danger" size="medium" outline>
-              <sl-icon slot="prefix" name="stop-fill"></sl-icon>
-              Stop All
-            </sl-button>
-            <sl-divider vertical style="height: 1.5rem; margin: 0 var(--space-2)"></sl-divider>
-            <sl-tooltip content="Toggle Logs">
-              <sl-button id="toggle-logs-btn" variant="default" size="medium" outline circle>
-                <sl-icon name="terminal"></sl-icon>
+          </div>
+        </aside>
+  
+        <!-- Center Content (Grid + Toolbar) -->
+        <main id="dashboard-view" class="view-content">
+          <!-- Top Toolbar -->
+          <header class="topbar">
+            <div class="topbar-search">
+              <sl-input id="search-input" placeholder="Search solutions..." clearable style="flex: 1">
+                <sl-icon name="search" slot="prefix"></sl-icon>
+              </sl-input>
+  
+              <sl-select id="category-filter" placeholder="All Categories" style="width: 12rem">
+                <sl-option value="all">All Categories</sl-option>
+              </sl-select>
+            </div>
+  
+            <div class="topbar-actions">
+              <sl-button id="run-all-btn" variant="success" size="medium" outline>
+                <sl-icon slot="prefix" name="play-fill"></sl-icon>
+                Run All
               </sl-button>
-            </sl-tooltip>
+              <sl-button id="stop-all-btn" variant="danger" size="medium" outline>
+                <sl-icon slot="prefix" name="stop-fill"></sl-icon>
+                Stop All
+              </sl-button>
+              <sl-divider vertical style="height: 1.5rem; margin: 0 var(--space-2)"></sl-divider>
+              <sl-tooltip content="Toggle Logs">
+                <sl-button id="toggle-logs-btn" variant="default" size="medium" outline circle>
+                  <sl-icon name="terminal"></sl-icon>
+                </sl-button>
+              </sl-tooltip>
+            </div>
+          </header>
+  
+          <!-- Solution Grid Area -->
+          <div class="content-area scrollbar-custom">
+            <div id="solutions-grid" class="solutions-grid">
+              <!-- Cards will be injected by TS -->
+            </div>
           </div>
-        </header>
-
-        <!-- Solution Grid Area -->
-        <div class="content-area scrollbar-custom">
-          <div id="solutions-grid" class="solutions-grid">
-            <!-- Cards will be injected by TS -->
-          </div>
-        </div>
-      </main>
-
-      <!-- Settings View -->
-      <main id="settings-view" class="view-content hidden">
-        <header class="topbar">
-          <h2 style="font-size: var(--text-lg); font-weight: var(--font-bold)">System Settings</h2>
-        </header>
-
-        <div class="content-area scrollbar-custom" style="padding: var(--space-8)">
-          <div
-            style="
-              max-width: 800px;
-              margin: 0 auto;
-              display: flex;
-              flex-direction: column;
-              gap: var(--space-8);
-            "
-          >
-            <!-- Profiles Section -->
-            <section>
-              <h3
-                style="
-                  margin-bottom: var(--space-4);
-                  display: flex;
-                  align-items: center;
-                  gap: var(--space-2);
-                "
-              >
-                <sl-icon name="globe"></sl-icon>
-                Environment Profiles
-              </h3>
-              <sl-card>
-                <div style="display: flex; flex-direction: column; gap: var(--space-4)">
-                  <p style="color: var(--text-muted); font-size: var(--text-sm)">
-                    Select the active environment. This will update the base URL for all solutions.
-                  </p>
-                  <sl-select id="active-profile-select" label="Active Profile" value="local">
-                    <!-- Profiles will be injected here -->
-                  </sl-select>
-                  <div
-                    id="profile-info-display"
-                    style="
-                      padding: var(--space-3);
-                      background: var(--bg-secondary);
-                      border-radius: var(--rounded-md);
-                      font-family: var(--font-mono);
-                      font-size: var(--text-xs);
-                    "
-                  >
-                    <!-- Active profile URL info -->
-                  </div>
-                </div>
-              </sl-card>
-            </section>
-
-            <!-- Maintenance Section -->
-            <section>
-              <h3
-                style="
-                  margin-bottom: var(--space-4);
-                  display: flex;
-                  align-items: center;
-                  gap: var(--space-2);
-                  color: var(--error);
-                "
-              >
-                <sl-icon name="exclamation-triangle"></sl-icon>
-                Danger Zone
-              </h3>
-              <sl-card>
-                <div style="display: flex; flex-direction: column; gap: var(--space-4)">
-                  <div>
-                    <h4 style="margin-bottom: var(--space-1)">Reset to Defaults</h4>
+        </main>
+  
+        <!-- Settings View -->
+        <main id="settings-view" class="view-content hidden">
+          <header class="topbar">
+            <h2 style="font-size: var(--text-lg); font-weight: var(--font-bold)">System Settings</h2>
+          </header>
+  
+          <div class="content-area scrollbar-custom" style="padding: var(--space-8)">
+            <div
+              style="
+                max-width: 800px;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                gap: var(--space-8);
+              "
+            >
+              <!-- Profiles Section -->
+              <section>
+                <h3
+                  style="
+                    margin-bottom: var(--space-4);
+                    display: flex;
+                    align-items: center;
+                    gap: var(--space-2);
+                  "
+                >
+                  <sl-icon name="globe"></sl-icon>
+                  Environment Profiles
+                </h3>
+                <sl-card>
+                  <div style="display: flex; flex-direction: column; gap: var(--space-4)">
                     <p style="color: var(--text-muted); font-size: var(--text-sm)">
-                      This will reload the default apps (HR, Warehouses, Finance, etc.) and
-                      profiles. Your existing custom solutions will be preserved unless there is an
-                      ID conflict.
+                      Select the active environment. This will update the base URL for all solutions.
                     </p>
+                    <sl-select id="active-profile-select" label="Active Profile" value="local">
+                      <!-- Profiles will be injected here -->
+                    </sl-select>
+                    <div
+                      id="profile-info-display"
+                      style="
+                        padding: var(--space-3);
+                        background: var(--bg-secondary);
+                        border-radius: var(--rounded-md);
+                        font-family: var(--font-mono);
+                        font-size: var(--text-xs);
+                      "
+                    >
+                      <!-- Active profile URL info -->
+                    </div>
                   </div>
-                  <sl-button id="reset-defaults-btn" variant="danger" outline>
-                    <sl-icon slot="prefix" name="arrow-counterclockwise"></sl-icon>
-                    Reset All to Defaults
-                  </sl-button>
-                </div>
-              </sl-card>
-            </section>
+                </sl-card>
+              </section>
+  
+              <!-- Maintenance Section -->
+              <section>
+                <h3
+                  style="
+                    margin-bottom: var(--space-4);
+                    display: flex;
+                    align-items: center;
+                    gap: var(--space-2);
+                    color: var(--error);
+                  "
+                >
+                  <sl-icon name="exclamation-triangle"></sl-icon>
+                  Danger Zone
+                </h3>
+                <sl-card>
+                  <div style="display: flex; flex-direction: column; gap: var(--space-4)">
+                    <div>
+                      <h4 style="margin-bottom: var(--space-1)">Reset to Defaults</h4>
+                      <p style="color: var(--text-muted); font-size: var(--text-sm)">
+                        This will reload the default apps (HR, Warehouses, Finance, etc.) and
+                        profiles. Your existing custom solutions will be preserved unless there is an
+                        ID conflict.
+                      </p>
+                    </div>
+                    <sl-button id="reset-defaults-btn" variant="danger" outline>
+                      <sl-icon slot="prefix" name="arrow-counterclockwise"></sl-icon>
+                      Reset All to Defaults
+                    </sl-button>
+                  </div>
+                </sl-card>
+              </section>
+            </div>
           </div>
-        </div>
-      </main>
-
-      <!-- Right Resizable Logs Panel -->
-      <aside id="logs-panel" class="logs-panel hidden">
-        <!-- Resize Handle -->
-        <div id="resize-handle" class="resize-handle"></div>
-
-        <div class="logs-header">
-          <div class="logs-title">
-            <sl-icon name="terminal-fill" class="logs-title-icon"></sl-icon>
-            <h3 class="logs-title-text">Live Logs</h3>
+        </main>
+  
+        <!-- Right Resizable Logs Panel -->
+        <aside id="logs-panel" class="logs-panel hidden">
+          <!-- Resize Handle -->
+          <div id="resize-handle" class="resize-handle"></div>
+  
+          <div class="logs-header">
+            <div class="logs-title">
+              <sl-icon name="terminal-fill" class="logs-title-icon"></sl-icon>
+              <h3 class="logs-title-text">Live Logs</h3>
+            </div>
+            <div class="logs-controls">
+              <sl-select id="log-filter" size="small" style="width: 10rem">
+                <sl-option value="all">All Logs</sl-option>
+              </sl-select>
+              <sl-button id="clear-logs-btn" size="small" variant="text">
+                <sl-icon name="trash"></sl-icon>
+              </sl-button>
+              <sl-button id="close-logs-btn" size="small" variant="text">
+                <sl-icon name="x-lg"></sl-icon>
+              </sl-button>
+            </div>
           </div>
-          <div class="logs-controls">
-            <sl-select id="log-filter" size="small" style="width: 10rem">
-              <sl-option value="all">All Logs</sl-option>
-            </sl-select>
-            <sl-button id="clear-logs-btn" size="small" variant="text">
-              <sl-icon name="trash"></sl-icon>
-            </sl-button>
-            <sl-button id="close-logs-btn" size="small" variant="text">
-              <sl-icon name="x-lg"></sl-icon>
-            </sl-button>
+  
+          <div id="logs-content" class="logs-content scrollbar-custom">
+            <!-- Logs injected by TS -->
           </div>
-        </div>
-
-        <div id="logs-content" class="logs-content scrollbar-custom">
-          <!-- Logs injected by TS -->
-        </div>
-
-        <div class="logs-footer">
-          <span id="log-stats">0 lines</span>
-          <sl-checkbox id="auto-scroll-check" size="small" checked>Auto-scroll</sl-checkbox>
-        </div>
-      </aside>
+  
+          <div class="logs-footer">
+            <span id="log-stats">0 lines</span>
+            <sl-checkbox id="auto-scroll-check" size="small" checked>Auto-scroll</sl-checkbox>
+          </div>
+        </aside>
+      </div>
     </div>
 
-    <!-- Modals -->
-    <sl-dialog id="solution-modal" label="Solution Editor">
+    <!-- Modals & Overlays (Outside of app-container for better interactivity) -->
+    <sl-dialog id="solution-modal" label="Add New Solution">
       <form id="solution-form" style="display: flex; flex-direction: column; gap: var(--space-4)">
         <sl-input
           label="Service Name"
@@ -278,24 +280,31 @@
             label="Command"
             id="solution-command"
             required
-            placeholder="npm"
-            value="npm"
+            placeholder="ng"
           ></sl-input>
-          <sl-input label="Arguments" id="solution-args" placeholder="run,dev"></sl-input>
+          <sl-input label="Arguments" id="solution-args" placeholder="serve"></sl-input>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4)">
-          <sl-input label="Port" id="solution-port" type="number" required value="4200"></sl-input>
-          <sl-input label="Category" id="solution-category" required value="Frontend"></sl-input>
+          <sl-input label="Port" id="solution-port" type="number" required></sl-input>
+          <sl-input label="Category" id="solution-category" required></sl-input>
         </div>
 
         <sl-input
           label="Path Suffix"
           id="solution-pathsuffix"
           placeholder="/"
-          value="/"
           help-text="URL path after port (e.g., /dashboard)"
         ></sl-input>
+
+        <sl-select
+          label="Environment Override"
+          id="solution-env-override"
+          help-text="Force a specific environment or follow the global default"
+        >
+          <sl-option value="">Follow Global Default</sl-option>
+          <!-- Profiles will be injected here -->
+        </sl-select>
 
         <sl-checkbox id="solution-autostart">Launch on startup</sl-checkbox>
 
@@ -307,19 +316,7 @@
     </sl-dialog>
 
     <!-- Global Toast Container -->
-    <div
-      id="toast-container"
-      style="
-        position: fixed;
-        bottom: var(--space-4);
-        right: var(--space-4);
-        z-index: var(--z-tooltip);
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-2);
-        pointer-events: none;
-      "
-    ></div>
+    <div id="toast-container"></div>
 
     <script type="module" src="/src/renderer/renderer.ts"></script>
   </body>

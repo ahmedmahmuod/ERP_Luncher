@@ -65,6 +65,7 @@ const solutionsGrid = document.getElementById('solutions-grid')!;
 const solutionModal = document.getElementById('solution-modal') as any;
 const solutionForm = document.getElementById('solution-form') as HTMLFormElement;
 const browsePathBtn = document.getElementById('browse-path-btn')!;
+const solutionEnvOverride = document.getElementById('solution-env-override') as any;
 
 // Views
 const dashboardView = document.getElementById('dashboard-view')!;
@@ -111,6 +112,7 @@ function initializeComponents() {
     },
     onAddSolution: () => {
       resetModal();
+      void loadAllProfiles(); // Ensure profiles are loaded for the modal
       solutionModal.label = 'Add New Solution';
       solutionModal.show();
     },
@@ -168,12 +170,20 @@ async function loadActiveProfile() {
 async function loadAllProfiles() {
   try {
     const profiles = await window.electronAPI.profiles.getAll();
-    activeProfileSelect.innerHTML = profiles
-      .map((p: Profile) => `<sl-option value="${p.id}">${p.name} (${p.baseUrl})</sl-option>`)
+    const options = profiles
+      .map((p: Profile) => `<sl-option value="${p.baseUrl}">${p.name} (${p.baseUrl})</sl-option>`)
       .join('');
 
-    if (activeProfile) {
-      activeProfileSelect.value = activeProfile.id;
+    if (activeProfileSelect) {
+      activeProfileSelect.innerHTML = options;
+      if (activeProfile) activeProfileSelect.value = activeProfile.id;
+    }
+
+    if (solutionEnvOverride) {
+      solutionEnvOverride.innerHTML = `
+        <sl-option value="">Follow Global Default</sl-option>
+        ${options}
+      `;
     }
   } catch (error) {
     console.error('Failed to load all profiles:', error);
@@ -243,7 +253,7 @@ function setupEventListeners() {
     const profileId = activeProfileSelect.value;
     await window.electronAPI.profiles.setActive(profileId);
     await loadActiveProfile();
-    showToast('Profile Changed', `Switched to ${activeProfile?.name} environment`, 'primary');
+    toaster.info(`Switched to ${activeProfile?.name} environment`);
     renderSolutions(); // Update all card URLs
   });
 
@@ -255,10 +265,10 @@ function setupEventListeners() {
         await window.electronAPI.config.resetToDefaults();
         await loadActiveProfile();
         await loadSolutions();
-        showToast('System Reset', 'Restored default solutions and profiles', 'success');
+        toaster.success('Restored default solutions and profiles');
         switchView('dashboard');
       } catch (error: any) {
-        showToast('Reset Failed', error.message, 'danger');
+        toaster.error(error.message);
       }
     }
   });
@@ -285,20 +295,21 @@ function setupEventListeners() {
       pathSuffix: (document.getElementById('solution-pathsuffix') as any)?.value || '/',
       category: (document.getElementById('solution-category') as any).value,
       autoStart: (document.getElementById('solution-autostart') as any).checked,
+      baseUrlOverride: solutionEnvOverride.value || undefined,
     };
 
     try {
       if (id) {
         await window.electronAPI.solutions.update(id, data);
-        showToast('Success', 'Solution updated successfully', 'success');
+        toaster.success('Solution updated successfully');
       } else {
         await window.electronAPI.solutions.add(data);
-        showToast('Success', 'Solution added successfully', 'success');
+        toaster.success('Solution added successfully');
       }
       solutionModal.hide();
       await loadSolutions();
     } catch (error: any) {
-      showToast('Error', error.message, 'danger');
+      toaster.error(error.message);
     }
   });
 
@@ -310,9 +321,7 @@ function setupEventListeners() {
   // Attach solution card event listeners
   SolutionCard.attachEventListeners(solutionsGrid, {
     onStart: (id) =>
-      window.electronAPI.processes
-        .start(id)
-        .catch((e: any) => showToast('Error', e.message, 'danger')),
+      window.electronAPI.processes.start(id).catch((e: any) => toaster.error(e.message)),
     onStop: (id) => window.electronAPI.processes.stop(id),
     onOpen: (url) => window.electronAPI.shell.openBrowser(url),
     onViewLogs: (id) => {
@@ -402,42 +411,32 @@ function editSolution(id: string) {
   (document.getElementById('solution-pathsuffix') as any).value = sol.pathSuffix || '/';
   (document.getElementById('solution-category') as any).value = sol.category;
   (document.getElementById('solution-autostart') as any).checked = sol.autoStart;
+  solutionEnvOverride.value = sol.baseUrlOverride || '';
 
-  solutionModal.show();
+  void loadAllProfiles().then(() => {
+    solutionModal.show();
+  });
 }
 
 async function deleteSolution(id: string) {
   if (confirm('Are you sure you want to delete this solution?')) {
     await window.electronAPI.solutions.delete(id);
     await loadSolutions();
-    showToast('Deleted', 'Solution removed', 'warning');
+    toaster.warning('Solution removed');
   }
 }
 
-// Utilities
 function resetModal() {
   solutionForm.reset();
   delete (solutionForm as any).dataset.editingId;
-}
 
-function showToast(
-  title: string,
-  message: string,
-  variant: 'primary' | 'success' | 'danger' | 'warning' = 'primary'
-) {
-  const container = document.getElementById('toast-container')!;
-  const alert = Object.assign(document.createElement('sl-alert'), {
-    variant,
-    closable: true,
-    duration: 3000,
-    innerHTML: `
-      <sl-icon slot="icon" name="${variant === 'success' ? 'check-circle' : variant === 'danger' ? 'exclamation-octagon' : 'info-circle'}"></sl-icon>
-      <strong>${title}</strong><br />
-      ${message}
-    `,
-  });
-  container.appendChild(alert);
-  return (alert as any).toast();
+  // Set defaults programmatically
+  (document.getElementById('solution-command') as any).value = 'ng';
+  (document.getElementById('solution-args') as any).value = 'serve';
+  (document.getElementById('solution-port') as any).value = '4200';
+  (document.getElementById('solution-category') as any).value = 'Frontend';
+  (document.getElementById('solution-pathsuffix') as any).value = '/';
+  if (solutionEnvOverride) solutionEnvOverride.value = '';
 }
 
 // Start the app when DOM is ready
