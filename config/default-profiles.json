@@ -7,7 +7,7 @@
   {
     "id": "staging",
     "name": "Staging",
-    "baseUrl": "https://assemblestage"
+    "baseUrl": "https://assemblestage.com"
   },
   {
     "id": "production",
@@ -15,3 +15,4 @@
     "baseUrl": "https://mid-erp.com"
   }
 ]
+

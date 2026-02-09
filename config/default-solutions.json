@@ -16,7 +16,7 @@
     "repoPath": "",
     "command": "ng",
     "args": ["serve"],
-    "port": 44300,
+    "port": 4300,
     "pathSuffix": "/",
     "category": "Frontend",
     "autoStart": false
@@ -27,7 +27,7 @@
     "repoPath": "",
     "command": "ng",
     "args": ["serve"],
-    "port": 44301,
+    "port": 4301,
     "pathSuffix": "/",
     "category": "Frontend",
     "autoStart": false
@@ -38,7 +38,7 @@
     "repoPath": "",
     "command": "ng",
     "args": ["serve"],
-    "port": 44302,
+    "port": 4302,
     "pathSuffix": "/",
     "category": "Frontend",
     "autoStart": false
@@ -49,9 +49,21 @@
     "repoPath": "",
     "command": "ng",
     "args": ["serve"],
-    "port": 44303,
+    "port": 4303,
+    "pathSuffix": "/",
+    "category": "Frontend",
+    "autoStart": false
+  },
+  {
+    "id": "srm",
+    "name": "SRM",
+    "repoPath": "",
+    "command": "ng",
+    "args": ["serve"],
+    "port": 4304,
     "pathSuffix": "/",
     "category": "Frontend",
     "autoStart": false
   }
 ]
+

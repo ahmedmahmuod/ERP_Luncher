@@ -50,7 +50,7 @@ export class ProfileManager {
       return {
         profiles: [
           { id: 'local', name: 'Local', baseUrl: 'http://localhost' },
-          { id: 'staging', name: 'Staging', baseUrl: 'https://assemblestage' },
+          { id: 'staging', name: 'Staging', baseUrl: 'https://assemblestage.com' },
           { id: 'production', name: 'Production', baseUrl: 'https://mid-erp.com' },
         ],
         activeProfileId: 'local',
