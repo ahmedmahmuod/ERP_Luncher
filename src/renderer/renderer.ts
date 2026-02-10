@@ -320,8 +320,32 @@ function setupEventListeners() {
 
   // Attach solution card event listeners
   SolutionCard.attachEventListeners(solutionsGrid, {
-    onStart: (id) =>
-      window.electronAPI.processes.start(id).catch((e: any) => toaster.error(e.message)),
+    onStart: async (id) => {
+      const solution = solutions.find((s) => s.id === id);
+      if (!solution) return;
+
+      // Validate repository path
+      if (!solution.repoPath || solution.repoPath.trim() === '') {
+        toaster.error(
+          `Cannot start ${solution.name}: Repository path is not configured. Please edit the solution and add a valid path.`
+        );
+        // Automatically open edit modal to help user
+        setTimeout(() => editSolution(id), 500);
+        return;
+      }
+
+      // Validate path exists
+      const pathExists = await window.electronAPI.config.validatePath(solution.repoPath);
+      if (!pathExists) {
+        toaster.error(
+          `Cannot start ${solution.name}: Repository path does not exist. Please verify the path is correct.`
+        );
+        setTimeout(() => editSolution(id), 500);
+        return;
+      }
+
+      window.electronAPI.processes.start(id).catch((e: any) => toaster.error(e.message));
+    },
     onStop: (id) => window.electronAPI.processes.stop(id),
     onOpen: (url) => window.electronAPI.shell.openBrowser(url),
     onViewLogs: (id) => {

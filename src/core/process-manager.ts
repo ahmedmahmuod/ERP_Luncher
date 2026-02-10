@@ -30,8 +30,21 @@ export class ProcessManager extends EventEmitter {
     this.emit('state-change', solution.id, state);
 
     try {
+      // Prepare command arguments
+      const commandArgs = [...solution.args];
+
+      // For Angular CLI (ng serve), automatically add --port if not already specified
+      if (solution.command === 'ng' && solution.args.includes('serve')) {
+        const hasPortFlag = solution.args.some(
+          (arg) => arg === '--port' || arg.startsWith('--port=')
+        );
+        if (!hasPortFlag) {
+          commandArgs.push('--port', solution.port.toString());
+        }
+      }
+
       // Spawn process
-      const child = spawn(solution.command, solution.args, {
+      const child = spawn(solution.command, commandArgs, {
         cwd: solution.repoPath,
         shell: true,
         env: {

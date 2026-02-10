@@ -45,9 +45,20 @@ export class SolutionCard {
               <sl-icon name="folder"></sl-icon>
               PATH
             </span>
-            <span class="card-info-value truncate" style="max-width: 150px;" title="${solution.repoPath}">
-              ${solution.repoPath.split(/[\\/]/).pop() || ''}
+            ${
+              !solution.repoPath || solution.repoPath.trim() === ''
+                ? `
+            <span class="card-info-value" style="color: var(--warning); font-weight: 500;">
+              <sl-icon name="exclamation-triangle" style="font-size: 0.875rem;"></sl-icon>
+              Not configured
             </span>
+            `
+                : `
+            <span class="card-info-value truncate" style="max-width: 150px;" title="${solution.repoPath}">
+              ${solution.repoPath.split(/[\\\/]/).pop() || ''}
+            </span>
+            `
+            }
           </div>
 
           <div class="card-info-row">
@@ -106,7 +117,20 @@ export class SolutionCard {
                 Stop
               </sl-button>
             `
-                : `
+                : !solution.repoPath || solution.repoPath.trim() === ''
+                  ? `
+              <sl-tooltip content="Please configure repository path to run this solution">
+                <sl-button 
+                  variant="success" 
+                  size="small" 
+                  disabled
+                >
+                  <sl-icon slot="prefix" name="play-fill"></sl-icon>
+                  Run
+                </sl-button>
+              </sl-tooltip>
+            `
+                  : `
               <sl-button 
                 variant="success" 
                 size="small" 

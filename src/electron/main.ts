@@ -217,11 +217,19 @@ function setupIpcHandlers() {
       throw new Error('Solution not found');
     }
 
-    // Check port availability
+    // Check if already running
+    if (processManager.isRunning(solutionId)) {
+      throw new Error(`${solution.name} is already running`);
+    }
+
+    // Check port availability - be more thorough
     const portCheck = await portManager.checkPort(solution.port);
     if (!portCheck.available) {
+      const suggestedPort = portCheck.suggestedPort || solution.port + 1;
       throw new Error(
-        `Port ${solution.port} is already in use. Suggested port: ${portCheck.suggestedPort || 'N/A'}`
+        `Port ${solution.port} is already in use by another application. Please either:\n` +
+          `1. Stop the application using port ${solution.port}\n` +
+          `2. Edit this solution and change the port to ${suggestedPort} or another available port`
       );
     }
 
